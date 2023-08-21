@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.victvsschedule.ui.UiState
 import com.example.victvsschedule.viewmodel.BaseViewModel
+import com.example.victvsschedule.ui.ScreenScaffold
 
 @Composable
 fun VictvsExamsApp(
