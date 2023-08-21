@@ -1,4 +1,4 @@
-package com.example.victvsschedule
+package com.example.victvsschedule.ui
 
 import com.example.victvsschedule.data.remote.dto.ExamResponse
 import com.google.android.gms.maps.model.LatLng

@@ -12,9 +12,12 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.victvsschedule.ui.UiState
+import com.example.victvsschedule.viewmodel.BaseViewModel
 
 @Composable
 fun VictvsExamsApp(

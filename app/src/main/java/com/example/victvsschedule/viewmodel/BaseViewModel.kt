@@ -15,7 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.victvsschedule.UiState
+import com.example.victvsschedule.ui.UiState
 import com.example.victvsschedule.data.remote.ExamsService
 import com.example.victvsschedule.data.remote.dto.ExamResponse
 import com.google.android.gms.maps.model.LatLng
@@ -24,6 +24,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import com.example.victvsschedule.ExamEvent
+
 
 // viewModel class for handling data, events and updating UI
 class BaseViewModel: ViewModel() {
