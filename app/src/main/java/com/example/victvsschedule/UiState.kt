@@ -36,5 +36,6 @@ data class UiState(
     val selectedName: String? = null,
     val selectedEmail: String? = null,
     val selectedLatLng: LatLng? = null
+
 )
 
