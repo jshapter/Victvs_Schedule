@@ -21,7 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.victvsschedule.ExamEvent
-import com.example.victvsschedule.data.remote.dto.ExamResponse
+import com.example.victvsschedule.data.remote.Exam
 import com.example.victvsschedule.ui.UiState
 import com.example.victvsschedule.ui.components.ExamCard
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,7 +38,7 @@ fun ListView(
     val filteredExams = collectedUiState.value.filteredExams
     val filterApplied = collectedUiState.value.filterApplied
     var showMap by remember { mutableStateOf(false) }
-    val visibleExams: List<ExamResponse> = filteredExams.ifEmpty {
+    val visibleExams: List<Exam> = filteredExams.ifEmpty {
         exams
     }
     val tabState by remember { mutableIntStateOf(uiState.value.tabIndex) }
@@ -66,7 +66,7 @@ fun ListView(
             // generate card for each exam to be displayed. include arguments for selected exam onclick function to display selected exam map determined by its id
             items(visibleExams) { exam ->
                 ExamCard(
-                    exam,
+                    exam = exam,
                     modifier = Modifier.clickable {
                         onEvent(ExamEvent.SelectForMap(id = exam.id))
                         onEvent(ExamEvent.SelectTab(tabState))

@@ -17,8 +17,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.victvsschedule.ExamEvent
+import com.example.victvsschedule.data.remote.Exam
 import com.example.victvsschedule.data.remote.ExamsService
-import com.example.victvsschedule.data.remote.dto.ExamResponse
 import com.example.victvsschedule.ui.UiState
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -45,23 +45,49 @@ class BaseViewModel: ViewModel() {
             // use http service to contact api and sort results by date
             val apiResults = service.getExams().sortedBy { it.examdate }
 
+            // empty list of new Exam data class ready to populate with converted ExamResponse objects
+            val allExams = emptyList<Exam>().toMutableList()
+
+            // convert each ExamResponse to new Exam object with formatted date/time properties
+            apiResults.forEach { exam ->
+                val formattedDateTime = formatDateTime(exam.examdate)
+
+                val formattedExam = Exam(
+                    id = exam.id,
+                    title = exam.title,
+                    examDescription = exam.examdescription,
+                    examDateTime = exam.examdate,
+                    formattedExamDate = formattedDateTime[0],
+                    formattedExamTime = formattedDateTime[1],
+                    candidateName = exam.candidatename,
+                    candidateEmail = exam.candidateemail,
+                    locationName = exam.locationname,
+                    latitude = exam.latitude,
+                    longitude = exam.longitude
+                )
+
+                // add each Exam to list
+                allExams.add(formattedExam)
+            }
+
             // get unique values of locations, candidates and dates for UI state
             val locations = emptyList<String>().toMutableList()
             val candidates = emptyList<String>().toMutableList()
             val dates = emptyList<String>().toMutableList()
-            for (x in apiResults) {
-                if (x.locationname !in locations) {
-                    locations.add(x.locationname)
+
+            for (x in allExams) {
+                if (x.locationName !in locations) {
+                    locations.add(x.locationName)
                 }
             }
-            for (x in apiResults) {
-                if (x.candidatename !in candidates) {
-                    candidates.add(x.candidatename)
+            for (x in allExams) {
+                if (x.candidateName !in candidates) {
+                    candidates.add(x.candidateName)
                 }
             }
-            for (x in apiResults) {
-                if (x.examdate !in dates) {
-                    dates.add(x.examdate)
+            for (x in allExams) {
+                if (x.examDateTime !in dates) {
+                    dates.add(x.examDateTime)
                 }
             }
 
@@ -71,7 +97,7 @@ class BaseViewModel: ViewModel() {
 
             // update UI state
             _uiState.update { it.copy(
-                allExams = apiResults,
+                allExams = allExams,
                 locations = locations,
                 candidates = candidates,
                 dates = dates,
@@ -88,17 +114,16 @@ class BaseViewModel: ViewModel() {
                 val id = event.id
                 for (x in _uiState.value.allExams) {
                     if (id == x.id) {
-                        val newDateTime = formatDateTime(x.examdate)
                         _uiState.update { it.copy(
                             examSelected = true,
                             selectedId = id,
                             selectedTitle = x.title,
-                            selectedDescription = x.examdescription,
-                            selectedLocation = x.locationname,
-                            selectedDate = newDateTime[0],
-                            selectedTime = newDateTime[1],
-                            selectedName = x.candidatename,
-                            selectedEmail = x.candidateemail,
+                            selectedDescription = x.examDescription,
+                            selectedLocation = x.locationName,
+                            selectedDate = x.formattedExamDate,
+                            selectedTime = x.formattedExamTime,
+                            selectedName = x.candidateName,
+                            selectedEmail = x.candidateEmail,
                             selectedLatLng = LatLng(
                                 x.latitude.toDouble(),
                                 x.longitude.toDouble()
@@ -134,7 +159,7 @@ class BaseViewModel: ViewModel() {
                     val filterType = event.filterType
                     val filterApplied: Boolean
                     val exams = uiState.value.allExams
-                    val filteredExams = emptyList<ExamResponse>().toMutableList()
+                    val filteredExams = emptyList<Exam>().toMutableList()
                     val filteredByLocation = uiState.value.filteredByLocation.toMutableList()
                     var locationFilter = false
                     val filteredByCandidate = uiState.value.filteredByCandidate.toMutableList()
@@ -146,7 +171,7 @@ class BaseViewModel: ViewModel() {
                     when (filterType) {
                         "location" -> {
                             for (x in exams) {
-                                if (option == x.locationname) {
+                                if (option == x.locationName) {
                                     if (x in filteredByLocation) {
                                         filteredByLocation.remove(x)
                                     } else {
@@ -161,7 +186,7 @@ class BaseViewModel: ViewModel() {
 
                         "candidate" -> {
                             for (x in exams) {
-                                if (option == x.candidatename) {
+                                if (option == x.candidateName) {
                                     if (x in filteredByCandidate) {
                                         filteredByCandidate.remove(x)
                                     } else {
@@ -176,7 +201,7 @@ class BaseViewModel: ViewModel() {
 
                         "date" -> {
                             for (x in exams) {
-                                if (option == x.examdate) {
+                                if (option == x.examDateTime) {
                                     if (x in filteredByDate) {
                                         filteredByDate.remove(x)
                                     } else {
@@ -307,8 +332,34 @@ class BaseViewModel: ViewModel() {
         val timeSubString = initDateTime.subSequence(11, 16)
         val toDate = LocalDate.parse(dateSubString)
         val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy")
-        newDateTime[0] = toDate.format(formatter)
+
+        var date = toDate.format(formatter)
+
+
+        val dateSuffix: String = if (date.substring(1,2) == "1") {
+            "st"
+        } else if (date.substring(1,2) == "2") {
+            "nd"
+        } else if (date.substring(1,2) == "3") {
+            "rd"
+        } else {
+            "th"
+        }
+
+        var dateNumber = date.substring(0,2)
+        if (date.substring(0,1) == "0") {
+            dateNumber = dateNumber.substring(1, dateNumber.length)
+        }
+
+        val yearMarker = date.length - 4
+        val year = date.substring(yearMarker,date.length)
+
+
+        date = "${dateNumber}${dateSuffix} ${date.substring(3, yearMarker)}($year)"
+
+        newDateTime[0] = date
         newDateTime[1] = timeSubString.toString()
+
         return newDateTime
     }
 
@@ -319,24 +370,22 @@ class BaseViewModel: ViewModel() {
         if (uiState.filteredExams.isNotEmpty()) {
             when (option) {
                 in uiState.locations -> {
-                    if (option in uiState.locations) {
-                        for (x in uiState.filteredExams) {
-                            if (option == x.locationname) {
-                                selectable = true
-                            }
+                    for (x in uiState.filteredExams) {
+                        if (option == x.locationName) {
+                            selectable = true
                         }
                     }
                 }
                 in uiState.candidates -> {
                     for (x in uiState.filteredExams) {
-                        if (option == x.candidatename) {
+                        if (option == x.candidateName) {
                             selectable = true
                         }
                     }
                 }
                 in uiState.dates -> {
                     for (x in uiState.filteredExams) {
-                        if (option == x.examdate) {
+                        if (option == x.examDateTime) {
                             selectable = true
                         }
                     }

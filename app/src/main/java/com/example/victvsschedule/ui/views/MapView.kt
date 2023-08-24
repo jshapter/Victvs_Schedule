@@ -33,7 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.victvsschedule.ExamEvent
-import com.example.victvsschedule.data.remote.dto.ExamResponse
+import com.example.victvsschedule.data.remote.Exam
 import com.example.victvsschedule.ui.UiState
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -55,7 +55,7 @@ fun MapView(
     val collectedUiState: State<UiState> = uiState.collectAsState()
     val exams = collectedUiState.value.allExams
     val filteredExams = collectedUiState.value.filteredExams
-    val visibleExams: List<ExamResponse> = filteredExams.ifEmpty {
+    val visibleExams: List<Exam> = filteredExams.ifEmpty {
         exams
     }
     // use first exam in list if choosing map view from tab row
@@ -151,7 +151,7 @@ fun MapView(
             }
 
             // generate marker for each exam in filtered list or all exams if no filter applied
-            visibleExams.forEach { exam: ExamResponse ->
+            visibleExams.forEach { exam: Exam ->
                 // set position and marker state
                 val latLng = LatLng(
                     exam.latitude.toDouble(),

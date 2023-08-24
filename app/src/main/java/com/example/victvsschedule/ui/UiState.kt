@@ -1,6 +1,6 @@
 package com.example.victvsschedule.ui
 
-import com.example.victvsschedule.data.remote.dto.ExamResponse
+import com.example.victvsschedule.data.remote.Exam
 import com.google.android.gms.maps.model.LatLng
 
 // data class to hold values required for true state of UI
@@ -11,7 +11,7 @@ data class UiState(
     val showMapBottomSheet: Boolean = false,
 
     // list of all returned exams
-    val allExams: List<ExamResponse> = emptyList<ExamResponse>().toMutableList(),
+    val allExams: List<Exam> = emptyList<Exam>().toMutableList(),
 
     // lists of unique location, candidates and dates
     val locations: List<String> = emptyList<String>().toMutableList(),
@@ -20,10 +20,10 @@ data class UiState(
 
     // filtered lists
     val filterApplied: Boolean = false,
-    val filteredByLocation: List<ExamResponse> = emptyList<ExamResponse>().toMutableList(),
-    val filteredByCandidate: List<ExamResponse> = emptyList<ExamResponse>().toMutableList(),
-    val filteredByDate: List<ExamResponse> = emptyList<ExamResponse>().toMutableList(),
-    val filteredExams: List<ExamResponse> = emptyList<ExamResponse>().toMutableList(),
+    val filteredByLocation: List<Exam> = emptyList<Exam>().toMutableList(),
+    val filteredByCandidate: List<Exam> = emptyList<Exam>().toMutableList(),
+    val filteredByDate: List<Exam> = emptyList<Exam>().toMutableList(),
+    val filteredExams: List<Exam> = emptyList<Exam>().toMutableList(),
 
     // data for currently selected exam
     val examSelected: Boolean = false,
